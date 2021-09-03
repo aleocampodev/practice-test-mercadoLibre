@@ -1,12 +1,12 @@
 import Layout from "../components/layout";
 import axios from "axios";
 
-export default function Home({ data }) {
+export default function Home({ results }) {
   return (
     <Layout
       title="Mercado Libre"
       description="Pagina de practica de mercado libre"
-      data={data}
+      results={results}
     ></Layout>
   );
 }
@@ -16,11 +16,12 @@ export async function getStaticProps(searchValue) {
     const { data } = await axios.get(
       `https://api.mercadolibre.com/sites/MLA/search?q=${searchValue}`
     );
-    console.log(data.results);
+    //console.log(data.results);
+    console.log(data);
 
     return {
       props: {
-        data: data.results,
+        results: data.results,
       },
     };
   } catch (error) {
