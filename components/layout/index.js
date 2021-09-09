@@ -1,30 +1,53 @@
-import { useState, useEffect } from 'react'
-import Head from 'next/head'
-import { DelayInput } from 'react-delay-input'
-import axios from 'axios'
-import { api } from '../../commons/functions'
+import { useState, useEffect } from "react";
+import Head from "next/head";
+import { DelayInput } from "react-delay-input";
+import axios from "axios";
+import useSWR from "swr";
+import { api } from "../../commons/functions";
 
 const status = {
-  idle: 'idle',
-  loading: 'loading',
-  loaded: 'loaded',
-  failed: 'failed'
-}
+  idle: "idle",
+  loading: "loading",
+  loaded: "loaded",
+  failed: "failed",
+};
 
-const fetcher = (url) => axios.get(url).then((res) => res.data)
+const handleChange = async (e, url) => {
+  e.preventDefault();
+  axios.get(url).then((res) => res.data);
+};
 
 const Layout = ({ title, description, children, results }) => {
-  const [valueInput, setValueInput] = useState('')
+  const [valueInput, setValueInput] = useState("");
   const [searchStatus, setSearchStatus] = useState({
     status: status.idle,
-    data: null
-  })
-  const { data, error } = useSWR(api(valueInput), fetcher)
+    data: null,
+  });
+  const { data, error } = useSWR(api(valueInput), handleChange);
 
-  const handleChange = async (e) => {
-    console.log('hola teacher')
-    e.preventDefault()
-  }
+  /*const handleChange = async (e) => {
+    console.log("hola teacher");
+    e.preventDefault();
+    setSearchStatus({
+      ...searchStatus,
+      status: status.loading,
+    });
+    try {
+      await fetcher(api(valueInput));
+      console.log("ten paciencia con osa teacher");
+      console.log(data);
+      setSearchStatus({
+        status: status.loaded,
+        data,
+      });
+    } catch (error) {
+      console.log(error);
+      setSearchStatus({
+        status: status.failed,
+        data: null,
+      });
+    }
+  }*/
 
   /* useEffect(() => {
     results.filter((result, index) => console.log(result.id, "holi"));
@@ -48,7 +71,7 @@ const Layout = ({ title, description, children, results }) => {
           referrerpolicy="no-referrer"
         />
       </Head>
-      <header className="bg-warning " style={{ height: '80px' }}>
+      <header className="bg-warning " style={{ height: "80px" }}>
         <div className="input-group p-3">
           <DelayInput
             type="search"
@@ -58,7 +81,7 @@ const Layout = ({ title, description, children, results }) => {
             aria-describedby="basic-addon2"
             value={valueInput}
             onChange={(e) => {
-              setValueInput(e.target.value)
+              setValueInput(e.target.value);
             }}
             delayTimeout={300}
           />
@@ -72,31 +95,25 @@ const Layout = ({ title, description, children, results }) => {
           <p>Value: {valueInput}</p>
         </div>
       </header>
-      {searchStatus.status === status.failed
-        ? (
+      {error ? (
         <div>
           <p>Error</p>
           <button onClick={handleChange}>Cargar de nuevo</button>
         </div>
-          )
-        : null}
-      {searchStatus.status === status.loading
-        ? (
+      ) : null}
+      {!data ? (
         <div>
           <p>Cargando</p>
         </div>
-          )
-        : null}
-      {searchStatus.status === status.loading
-        ? (
+      ) : null}
+      {data.map((item) => (
         <div>
-          <p>Yupi :D</p>
+          <p>{item.title}</p>
         </div>
-          )
-        : null}
+      ))}
       <main>{children}</main>
     </div>
-  )
-}
+  );
+};
 
-export default Layout
+export default Layout;
